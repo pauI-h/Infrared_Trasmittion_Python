@@ -19,22 +19,20 @@ data - 6 bit
 0# #### - lower
 1# #### - upper
 0 0000<= # #### <= 11010 for letters
-01 1011 -> .
-01 1110 -> ?
-01 1111 -> ,
-11 1011 -> ;
-11 1110 -> -
-11 1111 -> '
 
 ###/1 01/01 ##/** **** - letters
 ###/1 01/10 ##/** **** - number
 ###/1 01/11 ##/** **** - punctuation
+
+images won't use a counter for repeat sendings instead they will use those 2 bits to increase the max size of an image from 2*2 to 4*4
 
 in the txt file # means either 0 or 1
     * means wait untill this is recieved
 """
 global count
 count = 0
+
+
 def count_out(num,len_): #returns the count for the packet with the correct length (2 count variables so made general)
     a = str(bin(num)[2:])
     for i in range(0,len_-len(a)):
@@ -58,6 +56,26 @@ def file_setup():
     file.close()
     file = open("packet_list.txt","a")
     return file;
+
+def charecter_to_packet(char):
+    alpha = "abcdefghijklmnopqrstuvwxyz"
+    punctuation= ",./<>?;'#:@~[]{}+_=-)(*&^%$£\"!`\\"
+    temp = ["101"] #this shows its text
+    if char in punctuation:
+        temp[0] = temp[0]+"11" #shows its a punctuation mark
+        temp.append(count_out(punctuation.index(char),6)
+    elif char.isdigit():
+        temp[0] = temp[0]+"10" #shows its a number
+        temp.append(count_out(int(char),6)
+    else: #must be a letter
+        temp[0] = temp[0]+"01"
+        if char.lower == char: #sees if char is lower case
+            temp.append("0")
+        else:
+            temp.append("1")
+        temp[1] = temp[1]+count_out(alpha.index(char),5)
+    return temp;
+
 file=file_setup()
 add_text(["01100","000000"],file)
 temp = "*###01100##000001\n"
